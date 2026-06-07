@@ -1,32 +1,95 @@
 # WhatsApp API (Baileys)
 
-API simples em Node.js para 1 usuario conectar WhatsApp e enviar mensagens.
+Production-ready WhatsApp API built with Baileys, Express, and Swagger.
 
-## Instalar
+## Features
+
+- QR Code authentication via browser or JSON
+- Send text messages
+- Connection status monitoring
+- Exponential backoff reconnection
+- API Key authentication (optional)
+- Rate limiting
+- Input validation (Zod)
+- Structured logging (Pino)
+- Graceful shutdown
+- Docker support
+- Tested (Vitest + Supertest)
+- Swagger UI documentation
+
+## Quick Start
+
 ```bash
+cp .env.example .env
 npm install
+npm start
 ```
 
-## Rodar
-```bash
-npm start
-# ou para auto-reload:
-npm run dev
-```
+Open `http://localhost:3000/qr/html` and scan the QR code.
+
+## Scripts
+
+| Command | Description |
+|---|---|
+| `npm start` | Start production server |
+| `npm run dev` | Start with auto-reload |
+| `npm test` | Run tests |
+| `npm run test:watch` | Run tests in watch mode |
+| `npm run test:coverage` | Run tests with coverage |
 
 ## Endpoints
-- `GET /` - Info
-- `GET /status` - Status da conexao
-- `GET /qr` - QR Code em base64 (JSON)
-- `GET /qr/html` - Pagina HTML com QR Code
-- `POST /send` - Enviar mensagem `{ "number": "5511999999999", "message": "Ola" }`
-- `POST /disconnect` - Desconectar
 
-## Swagger
-Acesse `http://localhost:3000/docs`
+| Method | Path | Description |
+|---|---|---|
+| `GET` | `/` | API info |
+| `GET` | `/status` | Connection status |
+| `GET` | `/qr` | QR code as base64 JSON |
+| `GET` | `/qr/html` | QR code HTML page |
+| `POST` | `/send` | Send message |
+| `POST` | `/disconnect` | Disconnect |
+| `GET` | `/docs` | Swagger UI |
 
-## Como usar
-1. Rode `npm start`
-2. Abra `http://localhost:3000/qr/html` no navegador
-3. Escaneie o QR Code com o WhatsApp no celular
-4. Pronto! Use `POST /send` para enviar mensagens
+### Send Message
+
+```json
+POST /send
+{
+  "number": "5511999999999",
+  "message": "Hello from API!"
+}
+```
+
+## Authentication
+
+Set `API_KEY` in `.env` to enable key-based auth. Send it as header:
+
+```
+x-api-key: your-secret-key
+```
+
+## Docker
+
+```bash
+docker build -t whatsapp-api .
+docker run -p 3000:3000 -v $(pwd)/auth_info:/app/auth_info whatsapp-api
+```
+
+## Environment Variables
+
+See [.env.example](.env.example) for all options.
+
+## Architecture
+
+```
+src/
+  config/         # Environment, logger, swagger
+  middleware/     # Auth, validation, rate limiter, error handler
+  routes/         # Express route handlers
+  services/       # WhatsApp business logic
+  app.js          # Express app factory
+  server.js       # Entry point with graceful shutdown
+tests/
+  routes/         # Route integration tests
+  services/       # Service unit tests
+  helpers/        # Test helpers & mocks
+```
